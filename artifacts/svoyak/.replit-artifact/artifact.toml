@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Свояк"
+description = "Русскоязычная многопользовательская викторина для компании: комнаты, ведущий, шесть категорий, вопросы и очки в реальном времени."
+version = "1.0.0"
+id = "artifacts/svoyak"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26234
+
+[services.development]
+run = "pnpm --filter @workspace/svoyak run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/svoyak", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/svoyak/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26234"
+BASE_PATH = "/"
