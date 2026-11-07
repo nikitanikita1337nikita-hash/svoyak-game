@@ -107,7 +107,6 @@ io.on('connection', socket => {
   // Создание комнаты
   socket.on('create-room', (name, callback) => {
     const code = generateRoomCode();
-
     const savedHistory = questionHistory[code] || {};
 
     const room = {
@@ -135,10 +134,7 @@ io.on('connection', socket => {
     sendRoom(code);
 
     if (callback) {
-      callback({
-        success: true,
-        code
-      });
+      callback({ success: true, code });
     }
   });
 
@@ -163,14 +159,10 @@ io.on('connection', socket => {
     });
 
     socket.join(code);
-
     sendRoom(code);
 
     if (callback) {
-      callback({
-        success: true,
-        code
-      });
+      callback({ success: true, code });
     }
   });
 
@@ -191,9 +183,7 @@ io.on('connection', socket => {
     room.categories = categories;
     sendRoom(code);
 
-    if (callback) {
-      callback({ success: true });
-    }
+    if (callback) callback({ success: true });
   });
 
   // Настройка таймера
@@ -213,9 +203,7 @@ io.on('connection', socket => {
     room.timerSeconds = seconds;
     sendRoom(code);
 
-    if (callback) {
-      callback({ success: true });
-    }
+    if (callback) callback({ success: true });
   });
 
   // Открытие вопроса
@@ -292,12 +280,10 @@ io.on('connection', socket => {
 
     sendRoom(code);
 
-    if (callback) {
-      callback({ success: true });
-    }
+    if (callback) callback({ success: true });
   });
 
-  // Старое событие оставлено для совместимости
+  // Старое событие для совместимости
   socket.on('reveal-answer', ({ code }, callback) => {
     const room = rooms[code];
 
@@ -312,17 +298,14 @@ io.on('connection', socket => {
     }
 
     room.activeQuestion.revealed = true;
-
     clearQuestionTimer(room);
+
     sendRoom(code);
 
-    if (callback) {
-      callback({ success: true });
-    }
+    if (callback) callback({ success: true });
   });
 
-  // НАЧИСЛЕНИЕ ОЧКОВ
-  // Важно: здесь больше нет проверки revealed!
+  // Начисление очков без показа ответа
   socket.on('award-points', ({ code, playerId }, callback) => {
     const room = rooms[code];
 
@@ -363,14 +346,11 @@ io.on('connection', socket => {
     player.score += room.activeQuestion.points;
 
     clearQuestionTimer(room);
-
     room.activeQuestion = null;
 
     sendRoom(code);
 
-    if (callback) {
-      callback({ success: true });
-    }
+    if (callback) callback({ success: true });
   });
 
   // Закрытие вопроса без начисления очков
@@ -394,12 +374,10 @@ io.on('connection', socket => {
 
     sendRoom(code);
 
-    if (callback) {
-      callback({ success: true });
-    }
+    if (callback) callback({ success: true });
   });
 
-  // Начало новой игры
+  // Новая игра
   socket.on('new-game', ({ code }, callback) => {
     const room = rooms[code];
 
@@ -428,9 +406,7 @@ io.on('connection', socket => {
     saveRoomHistory(room);
     sendRoom(code);
 
-    if (callback) {
-      callback({ success: true });
-    }
+    if (callback) callback({ success: true });
   });
 
   // Отключение игрока
@@ -463,6 +439,10 @@ io.on('connection', socket => {
   });
 });
 
-httpServer.listen(3001, '0.0.0.0', () => {
-  console.log('Сервер запущен на порту 3001');
+// Render использует process.env.PORT,
+// локально используется порт 3001
+const PORT = process.env.PORT || 3001;
+
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`Сервер запущен на порту ${PORT}`);
 });
